@@ -1,0 +1,26 @@
+name: build
+
+on:
+  workflow_run:
+    workflows: ["test"]
+    branches: [main]
+    types:
+      - completed
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.1.2"
+          gleam-version: "1.6.3"
+          rebar3-version: "3"
+          # elixir-version: "1.15.4"
+      - run: gleam deps download
+      - run: gleam export erlang-shipment
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: erlang-shipment
+          path: build/erlang-shipment
